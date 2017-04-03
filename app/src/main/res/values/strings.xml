@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Task Board</string>
+    <string name="drawer_open">open</string>
+    <string name="drawer_close">close</string>
+
+    <!-- xml strings and defaults -->
+    <string name="boards">Boards</string>
+    <string name="default_board_title">My board</string>
+    <string name="default_board_description">This is your first board</string>
+    <string name="no_account_text">No account yet? Create one!</string>
+    <string name="login">Login</string>
+    <string name="hint_username">username</string>
+    <string name="hint_password">password</string>
+    <string name="hint_email">email</string>
+    <string name="register">Register</string>
+    <string name="hint_board_name">Board name</string>
+    <string name="hint_board_description">Board description</string>
+    <string name="hint_card">Card description</string>
+
+    <string name="create_board_dialog_title">Create board</string>
+    <string name="create_card_dialog_title">Create card</string>
+
+</resources>
