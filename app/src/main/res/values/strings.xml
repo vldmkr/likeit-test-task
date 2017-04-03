@@ -20,4 +20,18 @@
     <string name="create_board_dialog_title">Create board</string>
     <string name="create_card_dialog_title">Create card</string>
 
+    <string name="card_created">Card created successfully</string>
+
+    <string name="choose_action">Choose an action</string>
+    <string name="move_to">Move to…</string>
+    <string name="edit_card">Edit card</string>
+    <string name="delete_card">Delete card</string>
+    <string name="ok">OK</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit">Edit</string>
+    <string name="logout">Logout</string>
+
 </resources>
