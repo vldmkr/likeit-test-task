@@ -4,4 +4,17 @@
 * Team: **0xFF**
 * [Wiki](https://github.com/vldmkr/likeit-test-task/wiki)
 
-![Logo](/img/logo_bk_s.png)
+
+***
+
+### Some screenshots
+
+
+![Menu](https://pp.userapi.com/c637424/v637424067/3f17d/fj6EMDfWGVk.jpg)
+
+
+_**(Меню, вызываемое тапом на иконку бургера или свайпом от левого края)**_
+
+![Main screen](https://pp.userapi.com/c637424/v637424067/3f184/88Zgk6GfA2c.jpg)
+
+_**(Экран, на котором отображены карточки с заданиями и элементы управления досками)**_
