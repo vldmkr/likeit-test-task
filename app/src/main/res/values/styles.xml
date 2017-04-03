@@ -21,10 +21,13 @@
     </style>
 
     <!-- Theme for ProgressDialogs in login and register -->
-    <style name="DialogLightTheme" parent="Theme.AppCompat.Light.Dialog"></style>
+    <style name="DialogLightTheme" parent="Theme.AppCompat.Light.Dialog" />
 
     <!-- Theme for ProgressDialogs in login and register -->
-    <style name="AlertDialogLightTheme" parent="Theme.AppCompat.Light.Dialog.Alert"></style>
+    <style name="AlertDialogLightTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColorPrimary">@color/primary_dark</item>
+        <item name="android:textColor">@color/primary_dark</item>
+    </style>
 
     <style name="ErrorText" parent="TextAppearance.AppCompat.Small">
         <item name="android:textColor">@color/inputErrorLogin</item>

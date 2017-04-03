@@ -1,5 +1,6 @@
 package org.best.taskboard;
 
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -9,9 +10,12 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 
 import com.github.clans.fab.FloatingActionButton;
 
@@ -41,12 +45,24 @@ public class BoardActivity extends AppCompatActivity {
 
     private ActionBarDrawerToggle mDrawerToggle;
     private PagerAdapter mPagerAdapter;
+    private AlertDialog.Builder mAlertDialog;
+
+    final CardsFragment todo = new CardsFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_board);
         ButterKnife.bind(this);
+
+        mAlertDialog = new AlertDialog.Builder(this, R.style.AlertDialogLightTheme);
+        mAlertDialog.setTitle(getResources().getString(R.string.error_dialog_title));
+        mAlertDialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
 
         mToolbar.setTitle(R.string.app_name);
         setSupportActionBar(mToolbar);
@@ -55,8 +71,8 @@ public class BoardActivity extends AppCompatActivity {
 
         mPagerAdapter = new PagerAdapter(getSupportFragmentManager());
 
-        final CardsFragment todo = new CardsFragment();
-        todo.getCards().add(new Card("HELLO", "!!!"));
+
+        todo.getCards().add(new Card("HELLO"));
         mPagerAdapter.addFragment("TODO", todo);
         mPagerAdapter.addFragment("OLOLO", new CardsFragment());
         mViewPager.setAdapter(mPagerAdapter);
@@ -67,16 +83,7 @@ public class BoardActivity extends AppCompatActivity {
         mCardFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                todo.getCards().add(new Card("HELLO!!", "!!!"));
-                todo.notifyDataSetChanged();
-                Snackbar.make(mDrawerLayout, getResources().getString(R.string.card_created), Snackbar.LENGTH_LONG)
-                        .setAction(getResources().getString(R.string.ok), new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                //Dismiss Snackbar
-                            }
-                        })
-                        .show();
+                dialogCreateCard();
             }
         });
     }
@@ -99,6 +106,43 @@ public class BoardActivity extends AppCompatActivity {
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+    public void dialogCreateCard() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogLightTheme);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogCreateCardView = inflater.inflate(R.layout.dialog_create_card, null);
+        final EditText cardDescription = (EditText) dialogCreateCardView.findViewById(R.id.edit_card_description);
+        builder.setView(dialogCreateCardView)
+                .setPositiveButton(getResources().getString(R.string.create), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (cardDescription.getText().toString().trim().isEmpty()) {
+                            mAlertDialog.setMessage(getResources().getString(R.string.card_description_empty));
+                            mAlertDialog.show();
+                        } else {
+                            todo.getCards().add(new Card(cardDescription.getText().toString()));
+                            todo.notifyDataSetChanged();
+
+                            Snackbar.make(mDrawerLayout, getResources().getString(R.string.card_created), Snackbar.LENGTH_LONG)
+                                    .setAction(getResources().getString(R.string.ok), new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            //Dismiss
+                                        }
+                                    })
+                                    .show();
+                        }
+                    }
+                })
+                .setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Cancel
+                    }
+                })
+                .setTitle(getResources().getString(R.string.create_card_dialog_title))
+                .setMessage(getResources().getString(R.string.create_card_dialog_content))
+                .show();
+    }
 
     static class PagerAdapter extends FragmentPagerAdapter {
         private final LinkedIterMap<String, CardsFragment> mFragments = new LinkedIterMap<>();

@@ -17,7 +17,8 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:orientation="horizontal"
-        android:weightSum="10">
+        android:weightSum="10"
+        android:baselineAligned="false">
 
         <LinearLayout
             android:layout_width="0dp"

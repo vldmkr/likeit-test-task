@@ -19,7 +19,10 @@
 
     <string name="create_board_dialog_title">Create board</string>
     <string name="create_card_dialog_title">Create card</string>
-
+    <string name="error_dialog_title">Error</string>
+    
+    <string name="create_card_dialog_content">Enter the description</string>
+    <string name="card_description_empty">The card description is empty</string>
     <string name="card_created">Card created successfully</string>
 
     <string name="choose_action">Choose an action</string>
