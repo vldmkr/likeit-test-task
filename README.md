@@ -16,10 +16,10 @@
 * _**Меню, вызываемое тапом на иконку бургера или свайпом от левого края**_
 
 
-![Main screen](https://pp.userapi.com/c637424/v637424067/3f184/88Zgk6GfA2c.jpg)
+![Main screen](https://pp.userapi.com/c837435/v837435539/3234f/0DHhih6FGps.jpg)
 
 * _**Экран, на котором отображены карточки с заданиями и элементы управления досками**_
 
-![Main screen](https://pp.userapi.com/c637424/v637424067/3f18f/J5ACl6WGaqk.jpg)
+![Main screen](https://pp.userapi.com/c837435/v837435539/32359/sAUfvvUVpzU.jpg)
 
 * _**Контекстное меню управления карточками**_
