@@ -21,6 +21,10 @@ public class Card {
         return mContent;
     }
 
+    public void setContent(String content) {
+        mContent = content;
+    }
+
     public String getCategory() {
         return mCategory;
     }

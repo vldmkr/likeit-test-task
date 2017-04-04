@@ -219,6 +219,47 @@ public class BoardActivity extends AppCompatActivity {
         deleteAlertDialog.show();
     }
 
+    public void dialogEditCard(final Card card) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogLightTheme);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogCreateCardView = inflater.inflate(R.layout.dialog_create_card, null);
+        final EditText cardDescription = (EditText) dialogCreateCardView.findViewById(R.id.edit_card_description);
+        cardDescription.setText(card.getContent());
+        final String initialContent = card.getContent();
+        builder.setView(dialogCreateCardView)
+                .setPositiveButton(getResources().getString(R.string.edit), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String editedContent = cardDescription.getText().toString();
+                        if (editedContent.equals(initialContent) || cardDescription.getText().toString().trim().isEmpty()) {
+                            mAlertDialog.setMessage(getResources().getString(R.string.not_edit_card_error_dialog));
+                            mAlertDialog.show();
+                        } else {
+                            card.setContent(editedContent);
+                            mPagerAdapter.update();
+                            Snackbar.make(mDrawerLayout, getResources().getString(R.string.card_edited), Snackbar.LENGTH_LONG)
+                                    .setAction(getResources().getString(R.string.ok), new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            //Dismiss
+                                        }
+                                    })
+                                    .show();
+                        }
+                    }
+                })
+                .setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Cancel
+                        dialog.dismiss();
+                    }
+                })
+                .setTitle(getResources().getString(R.string.edit_card_dialog_title))
+                .setMessage(getResources().getString(R.string.edit_card_dialog_content))
+                .show();
+    }
+
     static class PagerAdapter extends FragmentPagerAdapter {
         private final LinkedIterMap<String, CardsFragment> mFragments = new LinkedIterMap<>();
 
@@ -250,6 +291,12 @@ public class BoardActivity extends AppCompatActivity {
                 if (val.getValue().getCards().remove(card)) {
                     val.getValue().notifyDataSetChanged();
                 }
+            }
+        }
+
+        void update() {
+            for (Map.Entry<String, CardsFragment> val : mFragments.entrySet()) {
+                val.getValue().notifyDataSetChanged();
             }
         }
 
