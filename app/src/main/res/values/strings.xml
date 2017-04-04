@@ -24,6 +24,7 @@
     <string name="create_card_dialog_content">Enter the description</string>
     <string name="card_description_empty">The card description is empty</string>
     <string name="card_created">Card created successfully</string>
+    <string name="card_removed">Card removed successfully</string>
 
     <string name="choose_action">Choose an action</string>
     <string name="move_to">Move to…</string>
@@ -43,6 +44,8 @@
     <string name="cat_canceled">Canceled</string>
 
     <string name="choose_category_dialog">Choose a category</string>
+    <string name="delete_card_dialog_title">Delete card</string>
+    <string name="delete_card_dialog_content">Are you sure you want to delete this card?</string>
 
     <string-array name="actions_array">
         <item>@string/move_to</item>

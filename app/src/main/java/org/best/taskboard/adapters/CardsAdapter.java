@@ -81,10 +81,10 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> 
 //                                else if (which == 1) {
 //                                    //Edit card
 //                                    ((KanbanActivity) view.getContext()).editCardDialog(card);
-//                                } else if (which == 2) {
-//                                    //Delete card
-//                                    ((KanbanActivity) view.getContext()).deleteCardDialog(card);
-//                                }
+                                else if (which == 2) {
+                                    //Delete card
+                                    ((BoardActivity) view.getContext()).dialogDeleteCard(card);
+                                }
                             }
                         })
                         .show();

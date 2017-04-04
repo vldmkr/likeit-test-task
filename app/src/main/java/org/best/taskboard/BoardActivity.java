@@ -157,7 +157,7 @@ public class BoardActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void dialogMoveCard(Card card) {
+    public void dialogMoveCard(final Card card) {
         final int[] categoryToMove = new int[1];
         CharSequence[] charSequence = {getResources().getString(R.string.cat_new),
                 getResources().getString(R.string.cat_inprogress),
@@ -191,6 +191,34 @@ public class BoardActivity extends AppCompatActivity {
                 .show();
     }
 
+    public void dialogDeleteCard(final Card card) {
+        AlertDialog.Builder deleteAlertDialog = new AlertDialog.Builder(this, R.style.AlertDialogLightTheme);
+        deleteAlertDialog.setTitle(getResources().getString(R.string.delete_card_dialog_title));
+        deleteAlertDialog.setMessage(getResources().getString(R.string.delete_card_dialog_content));
+        deleteAlertDialog.setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        deleteAlertDialog.setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                mPagerAdapter.deleteCard(card);
+                Snackbar.make(mDrawerLayout, getResources().getString(R.string.card_removed), Snackbar.LENGTH_LONG)
+                        .setAction(getResources().getString(R.string.ok), new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                //Dismiss
+                            }
+                        })
+                        .show();
+
+            }
+        });
+        deleteAlertDialog.show();
+    }
+
     static class PagerAdapter extends FragmentPagerAdapter {
         private final LinkedIterMap<String, CardsFragment> mFragments = new LinkedIterMap<>();
 
@@ -217,12 +245,16 @@ public class BoardActivity extends AppCompatActivity {
             return mFragments.getKey(position);
         }
 
-        public void moveCard(Card card, int idx) {
+        void deleteCard(Card card) {
             for (Map.Entry<String, CardsFragment> val : mFragments.entrySet()) {
                 if (val.getValue().getCards().remove(card)) {
                     val.getValue().notifyDataSetChanged();
                 }
             }
+        }
+
+        void moveCard(Card card, int idx) {
+            deleteCard(card);
             CardsFragment fragment = mFragments.getValue(idx);
             fragment.getCards().add(card);
             fragment.notifyDataSetChanged();
