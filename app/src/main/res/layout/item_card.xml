@@ -36,7 +36,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/card_left_color"
+            android:id="@+id/card_hint_color"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.25"

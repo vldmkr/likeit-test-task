@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -47,7 +48,10 @@ public class BoardActivity extends AppCompatActivity {
     private PagerAdapter mPagerAdapter;
     private AlertDialog.Builder mAlertDialog;
 
-    final CardsFragment todo = new CardsFragment();
+    final CardsFragment mCategoryNew = new CardsFragment();
+    final CardsFragment mCategoryInProgress = new CardsFragment();
+    final CardsFragment mCategoryDone = new CardsFragment();
+    final CardsFragment mCategoryCanceled = new CardsFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,11 +75,7 @@ public class BoardActivity extends AppCompatActivity {
 
         mPagerAdapter = new PagerAdapter(getSupportFragmentManager());
 
-
-        todo.getCards().add(new Card("HELLO"));
-        mPagerAdapter.addFragment("TODO", todo);
-        mPagerAdapter.addFragment("OLOLO", new CardsFragment());
-        mViewPager.setAdapter(mPagerAdapter);
+        createCategories();
         mViewPager.setCurrentItem(0);
 
         mTabLayout.setupWithViewPager(mViewPager);
@@ -106,6 +106,18 @@ public class BoardActivity extends AppCompatActivity {
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+    public void createCategories() {
+        mCategoryInProgress.setColor(ContextCompat.getColor(this, R.color.inprogressColor));
+        mCategoryDone.setColor(ContextCompat.getColor(this, R.color.doneColor));
+        mCategoryCanceled.setColor(ContextCompat.getColor(this, R.color.canceledColor));
+
+        mPagerAdapter.addFragment(getResources().getString(R.string.cat_new), mCategoryNew);
+        mPagerAdapter.addFragment(getResources().getString(R.string.cat_inprogress), mCategoryInProgress);
+        mPagerAdapter.addFragment(getResources().getString(R.string.cat_done), mCategoryDone);
+        mPagerAdapter.addFragment(getResources().getString(R.string.cat_canceled), mCategoryCanceled);
+        mViewPager.setAdapter(mPagerAdapter);
+    }
+
     public void dialogCreateCard() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogLightTheme);
         LayoutInflater inflater = getLayoutInflater();
@@ -119,8 +131,9 @@ public class BoardActivity extends AppCompatActivity {
                             mAlertDialog.setMessage(getResources().getString(R.string.card_description_empty));
                             mAlertDialog.show();
                         } else {
-                            todo.getCards().add(new Card(cardDescription.getText().toString()));
-                            todo.notifyDataSetChanged();
+                            mCategoryNew.getCards().add(new Card(cardDescription.getText().toString()));
+                            mCategoryNew.notifyDataSetChanged();
+                            mViewPager.setCurrentItem(0);
 
                             Snackbar.make(mDrawerLayout, getResources().getString(R.string.card_created), Snackbar.LENGTH_LONG)
                                     .setAction(getResources().getString(R.string.ok), new View.OnClickListener() {
@@ -141,6 +154,40 @@ public class BoardActivity extends AppCompatActivity {
                 })
                 .setTitle(getResources().getString(R.string.create_card_dialog_title))
                 .setMessage(getResources().getString(R.string.create_card_dialog_content))
+                .show();
+    }
+
+    public void dialogMoveCard(Card card) {
+        final int[] categoryToMove = new int[1];
+        CharSequence[] charSequence = {getResources().getString(R.string.cat_new),
+                getResources().getString(R.string.cat_inprogress),
+                getResources().getString(R.string.cat_done),
+                getResources().getString(R.string.cat_canceled)};
+        final Card newCard = card;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResources().getString(R.string.choose_category_dialog))
+                .setSingleChoiceItems(charSequence, 0, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Select category
+                        categoryToMove[0] = which;
+                    }
+                })
+                .setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Move card to selected category
+                        mPagerAdapter.moveCard(newCard, categoryToMove[0]);
+                        mViewPager.setCurrentItem(categoryToMove[0]);
+                    }
+                })
+                .setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Cancel dialog
+                        dialog.dismiss();
+                    }
+                })
                 .show();
     }
 
@@ -168,6 +215,17 @@ public class BoardActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             return mFragments.getKey(position);
+        }
+
+        public void moveCard(Card card, int idx) {
+            for (Map.Entry<String, CardsFragment> val : mFragments.entrySet()) {
+                if (val.getValue().getCards().remove(card)) {
+                    val.getValue().notifyDataSetChanged();
+                }
+            }
+            CardsFragment fragment = mFragments.getValue(idx);
+            fragment.getCards().add(card);
+            fragment.notifyDataSetChanged();
         }
 
         class LinkedIterMap<K, V> extends LinkedHashMap<K, V> {

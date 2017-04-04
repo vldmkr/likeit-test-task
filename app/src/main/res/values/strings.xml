@@ -20,7 +20,7 @@
     <string name="create_board_dialog_title">Create board</string>
     <string name="create_card_dialog_title">Create card</string>
     <string name="error_dialog_title">Error</string>
-    
+
     <string name="create_card_dialog_content">Enter the description</string>
     <string name="card_description_empty">The card description is empty</string>
     <string name="card_created">Card created successfully</string>
@@ -37,4 +37,16 @@
     <string name="edit">Edit</string>
     <string name="logout">Logout</string>
 
+    <string name="cat_new">New</string>
+    <string name="cat_inprogress">In Progress</string>
+    <string name="cat_done">Done</string>
+    <string name="cat_canceled">Canceled</string>
+
+    <string name="choose_category_dialog">Choose a category</string>
+
+    <string-array name="actions_array">
+        <item>@string/move_to</item>
+        <item>@string/edit_card</item>
+        <item>@string/delete_card</item>
+    </string-array>
 </resources>

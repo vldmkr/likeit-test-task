@@ -43,4 +43,8 @@ public class CardsFragment extends Fragment {
     public void notifyDataSetChanged() {
         mAdapter.notifyDataSetChanged();
     }
+
+    public void setColor(int color) {
+        mAdapter.setColor(color);
+    }
 }
