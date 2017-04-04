@@ -17,7 +17,7 @@
 
 
 ![Main screen](https://pp.userapi.com/c837435/v837435539/3234f/0DHhih6FGps.jpg)
-
+![Main screen 2](https://pp.userapi.com/c837435/v837435539/32363/Z4EZ_z7aAtE.jpg)
 * _**Экран, на котором отображены карточки с заданиями и элементы управления досками**_
 
 ![Main screen](https://pp.userapi.com/c837435/v837435539/32359/sAUfvvUVpzU.jpg)
