@@ -21,13 +21,14 @@ import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 public class CardsFragment extends Fragment {
     private final List<Card> mCards = new ArrayList<>();
     private final CardsAdapter mAdapter = new CardsAdapter(mCards);
+    RecyclerView mRecyclerView;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        RecyclerView rv = (RecyclerView) inflater.inflate(R.layout.fragment_card_list, container, false);
-        setupRecyclerView(rv);
-        return rv;
+        mRecyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_card_list, container, false);
+        setupRecyclerView(mRecyclerView);
+        return mRecyclerView;
     }
 
     private void setupRecyclerView(RecyclerView recyclerView) {
@@ -42,6 +43,9 @@ public class CardsFragment extends Fragment {
 
     public void notifyDataSetChanged() {
         mAdapter.notifyDataSetChanged();
+        if (mRecyclerView != null) {
+            mRecyclerView.smoothScrollToPosition(mCards.size() - 1);
+        }
     }
 
     public void setColor(int color) {

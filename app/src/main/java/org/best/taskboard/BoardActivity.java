@@ -7,28 +7,36 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.github.clans.fab.FloatingActionButton;
 
+import org.best.taskboard.adapters.BoardsAdapter;
 import org.best.taskboard.fragments.CardsFragment;
+import org.best.taskboard.models.Board;
+import org.best.taskboard.models.Cache;
 import org.best.taskboard.models.Card;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
 public class BoardActivity extends AppCompatActivity {
     @BindView(R.id.toolbar)
@@ -43,6 +51,12 @@ public class BoardActivity extends AppCompatActivity {
     FloatingActionButton mCardFab;
     @BindView(R.id.fab_create_board)
     FloatingActionButton mBoardFab;
+    @BindView(R.id.boards_recycler)
+    RecyclerView mBoardsRecycler;
+    @BindView(R.id.image_send)
+    ImageView mSendImage;
+    @BindView(R.id.message_text)
+    EditText mMessageEdit;
 
     private ActionBarDrawerToggle mDrawerToggle;
     private PagerAdapter mPagerAdapter;
@@ -86,6 +100,26 @@ public class BoardActivity extends AppCompatActivity {
                 dialogCreateCard();
             }
         });
+
+        mBoardsRecycler.setItemAnimator(new SlideInLeftAnimator());
+        mBoardsRecycler.addItemDecoration(new DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL_LIST));
+        BoardsAdapter boardsAdapter = new BoardsAdapter(new ArrayList<Board>() {{
+            add(new Board("1223", "asdasd"));
+            add(new Board("6567", "asdasdgsewd"));
+        }});
+        mBoardsRecycler.setAdapter(boardsAdapter);
+        mBoardsRecycler.setLayoutManager(new LinearLayoutManager(this));
+
+        mSendImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final CardsFragment cards = mPagerAdapter.getItem(mViewPager.getCurrentItem());
+                cards.getCards().add(new Card(mMessageEdit.getText().toString()));
+                cards.notifyDataSetChanged();
+                mMessageEdit.setText("");
+            }
+        });
     }
 
     @Override
@@ -107,14 +141,14 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void createCategories() {
-        mCategoryInProgress.setColor(ContextCompat.getColor(this, R.color.inprogressColor));
-        mCategoryDone.setColor(ContextCompat.getColor(this, R.color.doneColor));
-        mCategoryCanceled.setColor(ContextCompat.getColor(this, R.color.canceledColor));
+//        mCategoryInProgress.setColor(ContextCompat.getColor(this, R.color.inprogressColor));
+//        mCategoryDone.setColor(ContextCompat.getColor(this, R.color.doneColor));
+//        mCategoryCanceled.setColor(ContextCompat.getColor(this, R.color.canceledColor));
 
-        mPagerAdapter.addFragment(getResources().getString(R.string.cat_new), mCategoryNew);
-        mPagerAdapter.addFragment(getResources().getString(R.string.cat_inprogress), mCategoryInProgress);
-        mPagerAdapter.addFragment(getResources().getString(R.string.cat_done), mCategoryDone);
-        mPagerAdapter.addFragment(getResources().getString(R.string.cat_canceled), mCategoryCanceled);
+        mPagerAdapter.addFragment("Broadcast", mCategoryNew);
+//        mPagerAdapter.addFragment(getResources().getString(R.string.cat_inprogress), mCategoryInProgress);
+//        mPagerAdapter.addFragment(getResources().getString(R.string.cat_done), mCategoryDone);
+//        mPagerAdapter.addFragment(getResources().getString(R.string.cat_canceled), mCategoryCanceled);
         mViewPager.setAdapter(mPagerAdapter);
     }
 
@@ -260,6 +294,15 @@ public class BoardActivity extends AppCompatActivity {
                 .show();
     }
 
+    public void selectBoard(String name) {
+        if (!mPagerAdapter.removeFragment(name)) {
+            mPagerAdapter.addFragment(name, (CardsFragment) Cache.getInstance().getOrPut(name, new CardsFragment()));
+        }
+        mPagerAdapter.notifyDataSetChanged();
+        mViewPager.setCurrentItem(mPagerAdapter.getCount() - 1);
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+    }
+
     static class PagerAdapter extends FragmentPagerAdapter {
         private final LinkedIterMap<String, CardsFragment> mFragments = new LinkedIterMap<>();
 
@@ -269,6 +312,10 @@ public class BoardActivity extends AppCompatActivity {
 
         void addFragment(String title, CardsFragment fragment) {
             mFragments.put(title, fragment);
+        }
+
+        boolean removeFragment(String title) {
+            return mFragments.remove(title) != null;
         }
 
         @Override

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Board item UI in the list-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:background="?android:attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/list_item_board_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:text="Board name"
+        android:textColor="@color/black"/>
+
+    <TextView
+        android:id="@+id/list_item_board_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Board description bla bla bla"
+        android:textColor="@color/cardview_dark_background"/>
+
+</LinearLayout>

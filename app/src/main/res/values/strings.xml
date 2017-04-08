@@ -52,6 +52,8 @@
     <string name="edit_card_dialog_title">Edit card</string>
     <string name="edit_card_dialog_content">Edit the description</string>
 
+    <string name="delete_board_dialog_title">Delete board</string>
+    <string name="edit_board_dialog_title">Edit board</string>
     <string-array name="actions_array">
         <item>@string/move_to</item>
         <item>@string/edit_card</item>
