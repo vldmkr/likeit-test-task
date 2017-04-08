@@ -27,5 +27,6 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.5.1'
     compile 'com.github.clans:fab:1.6.4'
     compile 'jp.wasabeef:recyclerview-animators:2.2.1'
+    compile 'com.github.bitsybits:jCoAP:0f0a24fb72deed1a99b33c1016162d127b519961'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 }

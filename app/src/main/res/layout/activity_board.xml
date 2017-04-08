@@ -6,10 +6,12 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
+
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/main_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:background="@color/primary_light">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appbar"
@@ -33,48 +35,51 @@
 
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginTop="20dp"
-            android:background="@color/light">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/divider" />
-
-            <EditText
-                android:id="@+id/message_text"
+            <android.support.v4.view.ViewPager
+                android:id="@+id/view_pager"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="15dp"
-                android:layout_toStartOf="@+id/image_send"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="15dp"
-                android:background="@android:color/transparent"
-                android:hint="Type Message"
-                android:maxLines="1">
+                android:layout_marginBottom="111dp"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-                <requestFocus />
-            </EditText>
-
-            <ImageView
-                android:id="@+id/image_send"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:id="@+id/message_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/message_text"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="15dp"
-                android:src="@drawable/ic_send_24dp" />
-        </RelativeLayout>
+                android:layout_alignBottom="@id/view_pager"
+                android:layout_gravity="bottom"
+                android:layout_marginTop="20dp"
+                android:background="@color/light">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider" />
+
+                <EditText
+                    android:id="@+id/message_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_toStartOf="@+id/image_send"
+                    android:background="@android:color/transparent"
+                    android:hint="Type Message"
+                    android:maxLines="1">
+
+                    <requestFocus />
+                </EditText>
+
+                <ImageView
+                    android:id="@+id/image_send"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/message_text"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/ic_send_24dp" />
+            </RelativeLayout>
 
         <com.github.clans.fab.FloatingActionMenu
             android:id="@+id/fab"
@@ -82,8 +87,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:layout_margin="@dimen/fab_margin"
-            android:visibility="gone"
             android:src="@drawable/ic_add_24dp"
+            android:visibility="gone"
             app:menu_colorNormal="@color/accent"
             app:menu_colorPressed="@color/accent_light"
             app:menu_colorRipple="#99FFFFFF">

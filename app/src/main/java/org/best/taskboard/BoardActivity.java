@@ -3,6 +3,7 @@ package org.best.taskboard;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
@@ -67,6 +68,10 @@ public class BoardActivity extends AppCompatActivity {
     final CardsFragment mCategoryDone = new CardsFragment();
     final CardsFragment mCategoryCanceled = new CardsFragment();
 
+    final Handler mHandler = new Handler();
+    CoapClient client;
+    CoapEndpoint endpoint = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,9 +122,29 @@ public class BoardActivity extends AppCompatActivity {
                 final CardsFragment cards = mPagerAdapter.getItem(mViewPager.getCurrentItem());
                 cards.getCards().add(new Card(mMessageEdit.getText().toString()));
                 cards.notifyDataSetChanged();
+                endpoint.previousMsgId = client.send(mMessageEdit.getText().toString());
                 mMessageEdit.setText("");
+
             }
         });
+        if (client == null) {
+            client = new CoapClient();
+        }
+        if (endpoint == null) {
+            endpoint = new CoapEndpoint(new CoapEndpoint.Listener() {
+                @Override
+                public void onReceive(final String value) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            final CardsFragment cards = mPagerAdapter.getItem(0);
+                            cards.getCards().add(new Card(value));
+                            cards.notifyDataSetChanged();
+                        }
+                    });
+                }
+            });
+        }
     }
 
     @Override
@@ -295,9 +320,9 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void selectBoard(String name) {
-        if (!mPagerAdapter.removeFragment(name)) {
-            mPagerAdapter.addFragment(name, (CardsFragment) Cache.getInstance().getOrPut(name, new CardsFragment()));
-        }
+//        if (!mPagerAdapter.removeFragment(name)) {
+        mPagerAdapter.addFragment(name, (CardsFragment) Cache.getInstance().getOrPut(name, new CardsFragment()));
+//        }
         mPagerAdapter.notifyDataSetChanged();
         mViewPager.setCurrentItem(mPagerAdapter.getCount() - 1);
         mDrawerLayout.closeDrawer(GravityCompat.START);
