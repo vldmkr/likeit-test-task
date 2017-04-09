@@ -1,8 +1,6 @@
 package org.best.taskboard.adapters;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,35 +61,6 @@ public class BoardsAdapter extends RecyclerView.Adapter<BoardsAdapter.ViewHolder
             @Override
             public void onClick(View v) {
                 ((BoardActivity) v.getContext()).selectBoard(board.getName(), board.getAddress());
-            }
-        });
-
-        //On long click listener
-        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                //long click
-                final View view = v;
-                CharSequence[] items = {v.getResources().getString(R.string.edit_board_dialog_title),
-                v.getResources().getString(R.string.delete_board_dialog_title)};
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext(), R.style.AlertDialogLightTheme);
-                builder.setTitle(v.getResources().getString(R.string.choose_action))
-                        .setItems(items, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-//                                switch (which) {
-//                                    case 0:
-//                                        //Edit board name and description
-//                                        ((KanbanActivity) view.getContext()).editBoardDialog(board);
-//                                        break;
-//                                    case 1:
-//                                        //Delete board
-//                                        ((KanbanActivity) view.getContext()).deleteBoardDialog(board);
-//                                        break;
-//                                }
-                            }
-                        })
-                        .show();
-                return false;
             }
         });
     }

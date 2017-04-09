@@ -100,7 +100,6 @@ public class BoardActivity extends AppCompatActivity {
         }
 
         mNameText.setText(mUserName);
-        mAddressText.setText(InetUtils.getIpAddress(InetUtils.getNetworkInterface()).toString());
 
         mAlertDialog = new AlertDialog.Builder(this, R.style.AlertDialogLightTheme);
         mAlertDialog.setTitle(getResources().getString(R.string.error_dialog_title));
@@ -110,11 +109,25 @@ public class BoardActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
-
         mToolbar.setTitle(R.string.app_name);
         setSupportActionBar(mToolbar);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
         mDrawerLayout.addDrawerListener(mDrawerToggle);
+
+        try {
+            mAddressText.setText(InetUtils.getIpAddress(InetUtils.getNetworkInterface()).toString());
+        } catch (Exception ignored) {
+            mAlertDialog.setMessage("Connect to WiFi network first! App will be closed.")
+                    .setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            finishAffinity();
+                        }
+                    })
+            .show();
+            return;
+        }
 
         mPagerAdapter = new PagerAdapter(getSupportFragmentManager());
 
@@ -141,20 +154,7 @@ public class BoardActivity extends AppCompatActivity {
         mSendImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int idx = mViewPager.getCurrentItem();
-                final CardsFragment cards = mPagerAdapter.getItem(idx);
-                final String message = mMessageEdit.getText().toString();
-                if (!message.trim().isEmpty()) {
-                    if (idx == 0) {
-                        synchronized (endpoint.usedIds) {
-                            endpoint.usedIds.add(client.send(message));
-                        }
-                        cards.getCards().add(new Card(message));
-                        cards.notifyDataSetChanged();
-                    } else {
-                        cards.send(message);
-                    }
-                }
+                sendMessage(mMessageEdit.getText().toString());
                 mMessageEdit.setText("");
             }
         });
@@ -207,6 +207,22 @@ public class BoardActivity extends AppCompatActivity {
                     });
                 }
             });
+        }
+    }
+
+    public void sendMessage(String message) {
+        int idx = mViewPager.getCurrentItem();
+        final CardsFragment cards = mPagerAdapter.getItem(idx);
+        if (!message.trim().isEmpty()) {
+            if (idx == 0) {
+                synchronized (endpoint.usedIds) {
+                    endpoint.usedIds.add(client.send(message));
+                }
+                cards.getCards().add(new Card(message));
+                cards.notifyDataSetChanged();
+            } else {
+                cards.send(message);
+            }
         }
     }
 
@@ -279,41 +295,47 @@ public class BoardActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void dialogMoveCard(final Card card) {
-        final int[] categoryToMove = new int[1];
-        CharSequence[] charSequence = {getResources().getString(R.string.cat_new),
-                getResources().getString(R.string.cat_inprogress),
-                getResources().getString(R.string.cat_done),
-                getResources().getString(R.string.cat_canceled)};
-        final Card newCard = card;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getResources().getString(R.string.choose_category_dialog))
-                .setSingleChoiceItems(charSequence, 0, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Select category
-                        categoryToMove[0] = which;
-                    }
-                })
-                .setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Move card to selected category
-                        mPagerAdapter.moveCard(newCard, categoryToMove[0]);
-                        mViewPager.setCurrentItem(categoryToMove[0]);
-                    }
-                })
-                .setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Cancel dialog
-                        dialog.dismiss();
-                    }
-                })
-                .show();
+    public void dialogResendMsg(final Card card) {
+        AlertDialog.Builder deleteAlertDialog = new AlertDialog.Builder(this, R.style.AlertDialogLightTheme);
+        deleteAlertDialog.setTitle(getResources().getString(R.string.resend_card_dialog_title));
+        deleteAlertDialog.setMessage(getResources().getString(R.string.resend_card_dialog_content));
+        deleteAlertDialog.setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        deleteAlertDialog.setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                if (card.isMine()) {
+                    sendMessage(card.getContent());
+                    Snackbar.make(mDrawerLayout, getResources().getString(R.string.success_resend), Snackbar.LENGTH_LONG)
+                            .setAction(getResources().getString(R.string.ok), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    //Dismiss
+                                }
+                            })
+                            .show();
+                } else {
+                    Snackbar.make(mDrawerLayout, getResources().getString(R.string.cannot_resend), Snackbar.LENGTH_LONG)
+                            .setAction(getResources().getString(R.string.ok), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    //Dismiss
+                                }
+                            })
+                            .show();
+                }
+
+            }
+        });
+        deleteAlertDialog.show();
     }
 
-    public void dialogDeleteCard(final Card card) {
+    public void dialogDeleteMsg(final Card card) {
         AlertDialog.Builder deleteAlertDialog = new AlertDialog.Builder(this, R.style.AlertDialogLightTheme);
         deleteAlertDialog.setTitle(getResources().getString(R.string.delete_card_dialog_title));
         deleteAlertDialog.setMessage(getResources().getString(R.string.delete_card_dialog_content));
@@ -341,45 +363,9 @@ public class BoardActivity extends AppCompatActivity {
         deleteAlertDialog.show();
     }
 
-    public void dialogEditCard(final Card card) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogLightTheme);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogCreateCardView = inflater.inflate(R.layout.dialog_create_card, null);
-        final EditText cardDescription = (EditText) dialogCreateCardView.findViewById(R.id.edit_card_description);
-        cardDescription.setText(card.getContent());
-        final String initialContent = card.getContent();
-        builder.setView(dialogCreateCardView)
-                .setPositiveButton(getResources().getString(R.string.edit), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String editedContent = cardDescription.getText().toString();
-                        if (editedContent.equals(initialContent) || cardDescription.getText().toString().trim().isEmpty()) {
-                            mAlertDialog.setMessage(getResources().getString(R.string.not_edit_card_error_dialog));
-                            mAlertDialog.show();
-                        } else {
-                            card.setContent(editedContent);
-                            mPagerAdapter.update();
-                            Snackbar.make(mDrawerLayout, getResources().getString(R.string.card_edited), Snackbar.LENGTH_LONG)
-                                    .setAction(getResources().getString(R.string.ok), new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            //Dismiss
-                                        }
-                                    })
-                                    .show();
-                        }
-                    }
-                })
-                .setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Cancel
-                        dialog.dismiss();
-                    }
-                })
-                .setTitle(getResources().getString(R.string.edit_card_dialog_title))
-                .setMessage(getResources().getString(R.string.edit_card_dialog_content))
-                .show();
+    public void dialogEditMsg(final Card card) {
+        mMessageEdit.setText(card.getContent());
+        mMessageEdit.setSelection(mMessageEdit.getText().length());
     }
 
     public CardsFragment selectBoard(String name, InetAddress address) {
@@ -404,9 +390,9 @@ public class BoardActivity extends AppCompatActivity {
         final int baseGreen = Color.green(baseColor);
         final int baseBlue = Color.blue(baseColor);
 
-        final int red = (baseRed + random.nextInt(256)) / 2;
-        final int green = (baseGreen + random.nextInt(256)) / 2;
-        final int blue = (baseBlue + random.nextInt(256)) / 2;
+        final int red = (int) ((baseRed + random.nextInt(256)) / 1.8);
+        final int green = (int) ((baseGreen + random.nextInt(256)) / 1.8);
+        final int blue = (int) ((baseBlue + random.nextInt(256)) / 1.8);
 
         return Color.rgb(red, green, blue);
     }

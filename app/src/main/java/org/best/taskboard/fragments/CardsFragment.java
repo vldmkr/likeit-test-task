@@ -105,13 +105,10 @@ public class CardsFragment extends Fragment {
                 String[] parts = msg.split("\\.");
                 try {
                     mMethod = parseMethod(parts[0]);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return;
-                }
-                if (parts.length >= 3) {
                     mPath = parts[1];
                     mPayload = parts[2];
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }

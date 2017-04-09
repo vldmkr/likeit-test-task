@@ -70,9 +70,9 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> 
             hintColor.setBackgroundColor(mColor);
         }
 
-        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 final View view = v;
                 AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext(), R.style.AlertDialogLightTheme);
                 builder.setTitle(v.getResources().getString(R.string.choose_action))
@@ -80,18 +80,17 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> 
                             public void onClick(DialogInterface dialog, int which) {
                                 if (which == 0) {
                                     //Move card to another category (column)
-                                    ((BoardActivity) view.getContext()).dialogMoveCard(card);
+                                    ((BoardActivity) view.getContext()).dialogResendMsg(card);
                                 } else if (which == 1) {
                                     //Edit card
-                                    ((BoardActivity) view.getContext()).dialogEditCard(card);
+                                    ((BoardActivity) view.getContext()).dialogEditMsg(card);
                                 } else if (which == 2) {
                                     //Delete card
-                                    ((BoardActivity) view.getContext()).dialogDeleteCard(card);
+                                    ((BoardActivity) view.getContext()).dialogDeleteMsg(card);
                                 }
                             }
                         })
                         .show();
-                return true;
             }
         });
     }
