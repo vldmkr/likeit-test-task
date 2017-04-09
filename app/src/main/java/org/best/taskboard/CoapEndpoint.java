@@ -1,7 +1,5 @@
 package org.best.taskboard;
 
-import android.util.Log;
-
 import org.ws4d.coap.core.connection.BasicCoapServerChannel;
 import org.ws4d.coap.core.enumerations.CoapMediaType;
 import org.ws4d.coap.core.rest.BasicCoapResource;
@@ -16,7 +14,7 @@ public class CoapEndpoint {
     BasicCoapServerChannel mServerChanel;
     CoapResourceServer mResourceServer;
     Listener listener = null;
-    public Set<Integer> usedIds = new HashSet<>(); // Library's issue, it duplicates messages in multicast request case
+    public final Set<Integer> usedIds = new HashSet<>(); // Library's issue, it duplicates messages in multicast request case
 
     public interface Listener {
         void onReceive(String value);
@@ -35,11 +33,12 @@ public class CoapEndpoint {
                 if (data != null && data.length > 0) {
                     payload = new String(data, Charset.forName("UTF-8"));
                 }
-                int msgId = mResourceServer.lastMsgId;
-
-                if (listener != null && payload != null && !usedIds.contains(msgId)) {
-                    usedIds.add(msgId);
-                    listener.onReceive(payload);
+                synchronized (usedIds) {
+                    if (listener != null && payload != null) {
+                        if (usedIds.add(mResourceServer.lastMsgId)) {
+                            listener.onReceive(payload);
+                        }
+                    }
                 }
                 return value;
             }

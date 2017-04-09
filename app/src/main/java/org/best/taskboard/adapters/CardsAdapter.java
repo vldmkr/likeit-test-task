@@ -34,12 +34,14 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView description;
-        LinearLayout hintColor;
+        LinearLayout leftColor;
+        LinearLayout rightColor;
 
         ViewHolder(View itemView) {
             super(itemView);
             description = (TextView) itemView.findViewById(R.id.card_description);
-            hintColor = (LinearLayout) itemView.findViewById(R.id.card_hint_color);
+            leftColor = (LinearLayout) itemView.findViewById(R.id.card_left_color);
+            rightColor = (LinearLayout) itemView.findViewById(R.id.card_right_color);
         }
     }
 
@@ -56,11 +58,13 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(CardsAdapter.ViewHolder viewHolder, int position) {
         // Get the data model based on position
-        final Card card = mCards.get(position);
+        final Card card = mCards.get(viewHolder.getAdapterPosition());
 
         TextView description = viewHolder.description;
         description.setText(card.getContent());
-        LinearLayout hintColor = viewHolder.hintColor;
+        LinearLayout hintColor = card.isMine() ? viewHolder.rightColor : viewHolder.leftColor;
+        viewHolder.rightColor.setVisibility(card.isMine() ? View.VISIBLE : View.INVISIBLE);
+        viewHolder.leftColor.setVisibility(card.isMine() ? View.INVISIBLE : View.VISIBLE);
 
         if (mColor != 0) {
             hintColor.setBackgroundColor(mColor);

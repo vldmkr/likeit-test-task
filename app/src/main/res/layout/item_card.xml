@@ -22,9 +22,18 @@
         android:baselineAligned="false">
 
         <LinearLayout
+            android:id="@+id/card_left_color"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:visibility="invisible"
+            android:background="@color/primary"
+            android:orientation="vertical" />
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="9.75"
+            android:layout_weight="9.50"
             android:orientation="horizontal"
             android:padding="@dimen/activity_horizontal_margin">
 
@@ -37,10 +46,11 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/card_hint_color"
+            android:id="@+id/card_right_color"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.25"
+            android:visibility="invisible"
             android:background="@color/primary"
             android:orientation="vertical" />
     </LinearLayout>

@@ -5,8 +5,11 @@ public class Card {
     private String mContent = null;
     private String mCategory = "asd";
     private String board = null;
+    private boolean mIsMine = true;
 
-    public Card() {
+    public Card(String content, boolean isMine) {
+        this(content);
+        mIsMine = isMine;
     }
 
     public Card(String content) {
@@ -19,6 +22,10 @@ public class Card {
 
     public String getContent() {
         return mContent;
+    }
+
+    public boolean isMine() {
+        return mIsMine;
     }
 
     public void setContent(String content) {

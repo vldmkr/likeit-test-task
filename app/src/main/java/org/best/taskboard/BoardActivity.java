@@ -120,11 +120,13 @@ public class BoardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final CardsFragment cards = mPagerAdapter.getItem(mViewPager.getCurrentItem());
-                cards.getCards().add(new Card(mMessageEdit.getText().toString()));
+                final String message = mMessageEdit.getText().toString();
+                synchronized (endpoint.usedIds) {
+                    endpoint.usedIds.add(client.send(message));
+                }
+                cards.getCards().add(new Card(message));
                 cards.notifyDataSetChanged();
-                endpoint.previousMsgId = client.send(mMessageEdit.getText().toString());
                 mMessageEdit.setText("");
-
             }
         });
         if (client == null) {
@@ -138,7 +140,7 @@ public class BoardActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             final CardsFragment cards = mPagerAdapter.getItem(0);
-                            cards.getCards().add(new Card(value));
+                            cards.getCards().add(new Card(value, false));
                             cards.notifyDataSetChanged();
                         }
                     });
