@@ -19,9 +19,8 @@ public class CoapClient {
     private static final int PORT = 5683;
     private CoapClientChannel mClientChannel = null;
     private Handler mHandler = new Handler();
-    private Map<InetAddress, String> mClients = new HashMap();
+    private Map<InetAddress, String> mClients = new HashMap<>();
     private Listener mListener;
-
 
     public interface Listener {
         void onResponse(Map<InetAddress, String> clients);
@@ -40,7 +39,7 @@ public class CoapClient {
                 if (response.getContentType() == CoapMediaType.link_format &&
                         !srcAddress.equals(InetUtils.getIpAddress(InetUtils.getNetworkInterface()))) {
                     Log.e("asdasdad", new String(response.getPayload()) + srcAddress.toString());
-                    mClients.put(srcAddress, "test");
+                    mClients.put(srcAddress, new String(response.getPayload()));
                     if (mListener != null) {
                         mListener.onResponse(mClients);
                     }
@@ -49,7 +48,6 @@ public class CoapClient {
 
             @Override
             public void onConnectionFailed(CoapClientChannel channel, boolean notReachable, boolean resetByServer) {
-
             }
         }, InetUtils.getBroadcastAddress(InetUtils.getNetworkInterface()), PORT);
 
@@ -60,6 +58,14 @@ public class CoapClient {
                 mHandler.postDelayed(this, 3000);
             }
         }, 1000);
+
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mClients.clear();
+                mHandler.postDelayed(this, 10_000);
+            }
+        }, 10_000);
     }
 
     public int send(String msg) {
@@ -67,15 +73,20 @@ public class CoapClient {
         coapRequest.setMulticast(true);
         coapRequest.setPayload(msg.getBytes(Charset.forName("UTF-8")));
 //        coapRequest.setUriPath("/.well-known/core");
-        coapRequest.setUriPath("/test");
+        coapRequest.setUriPath("/broadcast");
         mClientChannel.sendMessage(coapRequest);
+
         return coapRequest.getMessageID();
     }
 
     private void sendDiscovery() {
         CoapRequest coapRequest = mClientChannel.createRequest(true, CoapRequestCode.GET);
         coapRequest.setMulticast(true);
-        coapRequest.setUriPath("/.well-known/core");
+        coapRequest.setUriPath("/name");
         mClientChannel.sendMessage(coapRequest);
+    }
+
+    public String getClientName(InetAddress address) {
+        return mClients.get(address);
     }
 }

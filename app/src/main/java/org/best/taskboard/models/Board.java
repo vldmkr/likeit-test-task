@@ -1,19 +1,20 @@
 package org.best.taskboard.models;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 
 //Board model
 public class Board {
 
     private String name;
-    private String description;
+    private InetAddress address;
     private ArrayList<String> cards = new ArrayList<>();
     private ArrayList<String> owners = new ArrayList<>();
     private String _id;
 
-    public Board(String name, String description) {
+    public Board(String name, InetAddress address) {
         this.name = name;
-        this.description = description;
+        this.address = address;
 //        this.owners = owners;
     }
 
@@ -25,12 +26,8 @@ public class Board {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public InetAddress getAddress() {
+        return address;
     }
 
     public ArrayList<String> getCards() {

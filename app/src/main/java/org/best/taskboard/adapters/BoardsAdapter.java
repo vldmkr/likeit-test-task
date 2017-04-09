@@ -56,13 +56,13 @@ public class BoardsAdapter extends RecyclerView.Adapter<BoardsAdapter.ViewHolder
         TextView name = viewHolder.name;
         TextView description = viewHolder.description;
         name.setText(board.getName());
-        description.setText(board.getDescription());
+        description.setText(board.getAddress().toString());
 
         //On click listener
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((BoardActivity) v.getContext()).selectBoard(viewHolder.name.getText().toString());
+                ((BoardActivity) v.getContext()).selectBoard(board.getName(), board.getAddress());
             }
         });
 

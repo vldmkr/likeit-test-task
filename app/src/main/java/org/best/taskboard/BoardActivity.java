@@ -1,6 +1,7 @@
 package org.best.taskboard;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
 
@@ -60,6 +62,10 @@ public class BoardActivity extends AppCompatActivity {
     ImageView mSendImage;
     @BindView(R.id.message_text)
     EditText mMessageEdit;
+    @BindView(R.id.drawer_header_name)
+    TextView mNameText;
+    @BindView(R.id.drawer_header_address)
+    TextView mAddressText;
 
     private ActionBarDrawerToggle mDrawerToggle;
     private PagerAdapter mPagerAdapter;
@@ -75,12 +81,24 @@ public class BoardActivity extends AppCompatActivity {
     CoapEndpoint endpoint = null;
 
     final List<Board> mBoards = new ArrayList<>();
+    String mUserName = "---";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_board);
         ButterKnife.bind(this);
+
+        final Intent intent = getIntent();
+        if (intent != null) {
+            String name = intent.getStringExtra("name");
+            if (name != null) {
+                mUserName = name;
+            }
+        }
+
+        mNameText.setText(mUserName);
+        mAddressText.setText(InetUtils.getIpAddress(InetUtils.getNetworkInterface()).toString());
 
         mAlertDialog = new AlertDialog.Builder(this, R.style.AlertDialogLightTheme);
         mAlertDialog.setTitle(getResources().getString(R.string.error_dialog_title));
@@ -121,13 +139,18 @@ public class BoardActivity extends AppCompatActivity {
         mSendImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final CardsFragment cards = mPagerAdapter.getItem(mViewPager.getCurrentItem());
+                int idx = mViewPager.getCurrentItem();
+                final CardsFragment cards = mPagerAdapter.getItem(idx);
                 final String message = mMessageEdit.getText().toString();
-                synchronized (endpoint.usedIds) {
-                    endpoint.usedIds.add(client.send(message));
+                if (idx == 0) {
+                    synchronized (endpoint.usedIds) {
+                        endpoint.usedIds.add(client.send(message));
+                    }
+                    cards.getCards().add(new Card(message));
+                    cards.notifyDataSetChanged();
+                } else {
+                    cards.send(message);
                 }
-                cards.getCards().add(new Card(message));
-                cards.notifyDataSetChanged();
                 mMessageEdit.setText("");
             }
         });
@@ -140,7 +163,7 @@ public class BoardActivity extends AppCompatActivity {
                         public void run() {
                             mBoards.clear();
                             for (Map.Entry<InetAddress, String> val : clients.entrySet()) {
-                                mBoards.add(new Board(val.getValue(), val.getKey().toString()));
+                                mBoards.add(new Board(val.getValue(), val.getKey()));
                             }
                             boardsAdapter.notifyDataSetChanged();
                         }
@@ -149,15 +172,33 @@ public class BoardActivity extends AppCompatActivity {
             });
         }
         if (endpoint == null) {
-            endpoint = new CoapEndpoint(new CoapEndpoint.Listener() {
+            endpoint = new CoapEndpoint(mUserName, new CoapEndpoint.Listener() {
                 @Override
-                public void onReceive(final String value) {
+                public void onReceiveBroadcast(final String value) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             final CardsFragment cards = mPagerAdapter.getItem(0);
                             cards.getCards().add(new Card(value, false));
                             cards.notifyDataSetChanged();
+                        }
+                    });
+                }
+
+                @Override
+                public void onReceive(final InetAddress address, final String value) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            String clientName = client.getClientName(address);
+                            if (clientName != null) {
+                                CardsFragment cards = mPagerAdapter.getFragment(clientName);
+                                if (cards == null) {
+                                    cards = selectBoard(clientName, address);
+                                }
+                                cards.getCards().add(new Card(value, false));
+                                cards.notifyDataSetChanged();
+                            }
                         }
                     });
                 }
@@ -337,13 +378,17 @@ public class BoardActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void selectBoard(String name) {
+    public CardsFragment selectBoard(String name, InetAddress address) {
 //        if (!mPagerAdapter.removeFragment(name)) {
-        mPagerAdapter.addFragment(name, (CardsFragment) Cache.getInstance().getOrPut(name, new CardsFragment()));
+        CardsFragment fragment = (CardsFragment) Cache.getInstance().getOrPut(name, new CardsFragment());
+        if (fragment.connect(address)) {
+            mPagerAdapter.addFragment(name, fragment);
 //        }
-        mPagerAdapter.notifyDataSetChanged();
-        mViewPager.setCurrentItem(mPagerAdapter.getCount() - 1);
+            mPagerAdapter.notifyDataSetChanged();
+            mViewPager.setCurrentItem(mPagerAdapter.getCount() - 1);
+        }
         mDrawerLayout.closeDrawer(GravityCompat.START);
+        return fragment;
     }
 
     static class PagerAdapter extends FragmentPagerAdapter {
@@ -359,6 +404,10 @@ public class BoardActivity extends AppCompatActivity {
 
         boolean removeFragment(String title) {
             return mFragments.remove(title) != null;
+        }
+
+        CardsFragment getFragment(String title) {
+            return mFragments.get(title);
         }
 
         @Override
