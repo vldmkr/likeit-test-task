@@ -27,7 +27,7 @@ public class CoapPeerClient {
             @Override
             public void onResponse(CoapClientChannel channel, CoapResponse response) {
                 if (mListener != null) {
-                    mListener.onResponse(new String(response.toString()));
+                    mListener.onResponse(response.toString());
                 }
             }
 
@@ -45,10 +45,19 @@ public class CoapPeerClient {
 
     public int send(String msg) {
         CoapRequest coapRequest = mClientChannel.createRequest(true, CoapRequestCode.POST);
-        coapRequest.setMulticast(true);
+        coapRequest.setMulticast(false);
         coapRequest.setPayload(msg.getBytes(Charset.forName("UTF-8")));
 //        coapRequest.setUriPath("/.well-known/core");
         coapRequest.setUriPath("/peer");
+        mClientChannel.sendMessage(coapRequest);
+        return coapRequest.getMessageID();
+    }
+
+    public int send(CoapRequestCode code, String path, String payload) {
+        CoapRequest coapRequest = mClientChannel.createRequest(true, code);
+        coapRequest.setMulticast(false);
+        coapRequest.setPayload(payload);
+        coapRequest.setUriPath(path);
         mClientChannel.sendMessage(coapRequest);
         return coapRequest.getMessageID();
     }

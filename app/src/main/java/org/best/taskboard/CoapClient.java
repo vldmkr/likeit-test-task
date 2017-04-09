@@ -1,11 +1,9 @@
 package org.best.taskboard;
 
 import android.os.Handler;
-import android.util.Log;
 
 import org.ws4d.coap.core.connection.BasicCoapChannelManager;
 import org.ws4d.coap.core.connection.api.CoapClientChannel;
-import org.ws4d.coap.core.enumerations.CoapMediaType;
 import org.ws4d.coap.core.enumerations.CoapRequestCode;
 import org.ws4d.coap.core.messages.api.CoapRequest;
 import org.ws4d.coap.core.messages.api.CoapResponse;
@@ -36,12 +34,13 @@ public class CoapClient {
 
             @Override
             public void onMCResponse(CoapClientChannel channel, CoapResponse response, InetAddress srcAddress, int srcPort) {
-                if (response.getContentType() == CoapMediaType.link_format &&
-                        !srcAddress.equals(InetUtils.getIpAddress(InetUtils.getNetworkInterface()))) {
-                    Log.e("asdasdad", new String(response.getPayload()) + srcAddress.toString());
-                    mClients.put(srcAddress, new String(response.getPayload()));
-                    if (mListener != null) {
-                        mListener.onResponse(mClients);
+                if (!srcAddress.equals(InetUtils.getIpAddress(InetUtils.getNetworkInterface()))) {
+                    byte[] payload = response.getPayload();
+                    if (payload != null) {
+                        mClients.put(srcAddress, new String(payload));
+                        if (mListener != null) {
+                            mListener.onResponse(mClients);
+                        }
                     }
                 }
             }

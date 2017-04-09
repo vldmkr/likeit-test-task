@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Task Board</string>
+    <string name="app_name">Beehive</string>
     <string name="drawer_open">open</string>
     <string name="drawer_close">close</string>
 
     <!-- xml strings and defaults -->
-    <string name="boards">Boards</string>
+    <string name="clients">Clients</string>
     <string name="default_board_title">My board</string>
     <string name="default_board_description">This is your first board</string>
     <string name="no_account_text">No account yet? Create one!</string>

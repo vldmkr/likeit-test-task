@@ -14,6 +14,7 @@ import org.best.taskboard.CoapPeerClient;
 import org.best.taskboard.R;
 import org.best.taskboard.adapters.CardsAdapter;
 import org.best.taskboard.models.Card;
+import org.ws4d.coap.core.enumerations.CoapRequestCode;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -27,9 +28,11 @@ public class CardsFragment extends Fragment {
     RecyclerView mRecyclerView;
     private CoapPeerClient mClient;
     private Handler mHandler = new Handler();
+    private CommandParser mParser = new CommandParser();
 
     @Nullable
     @Override
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRecyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_card_list, container, false);
         setupRecyclerView(mRecyclerView);
@@ -44,8 +47,10 @@ public class CardsFragment extends Fragment {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-//                            getCards().add(new Card(msg, false));
-//                            notifyDataSetChanged();
+                            if (mParser.mIsLastCommand) {
+                                getCards().add(new Card(msg, false));
+                                notifyDataSetChanged();
+                            }
                         }
                     });
                 }
@@ -56,7 +61,12 @@ public class CardsFragment extends Fragment {
     }
 
     public void send(String msg) {
-        mClient.send(msg);
+        mParser.parse(msg);
+        if (mParser.mIsLastCommand) {
+            mClient.send(mParser.mMethod, mParser.mPath, mParser.mPayload);
+        } else {
+            mClient.send(msg);
+        }
         getCards().add(new Card(msg));
         notifyDataSetChanged();
     }
@@ -80,5 +90,34 @@ public class CardsFragment extends Fragment {
 
     public void setColor(int color) {
         mAdapter.setColor(color);
+    }
+
+    public class CommandParser {
+        boolean mIsLastCommand = false;
+        CoapRequestCode mMethod = CoapRequestCode.GET;
+        String mPath = "/dev/null";
+        String mPayload = "";
+
+        void parse(String msg) {
+            mIsLastCommand = msg.getBytes()[0] == '/';
+            if (mIsLastCommand) {
+                msg = msg.substring(1);
+                String[] parts = msg.split("\\.");
+                try {
+                    mMethod = parseMethod(parts[0]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+                if (parts.length >= 3) {
+                    mPath = parts[1];
+                    mPayload = parts[2];
+                }
+            }
+        }
+
+        CoapRequestCode parseMethod(String code) {
+            return CoapRequestCode.valueOf(code.toUpperCase());
+        }
     }
 }

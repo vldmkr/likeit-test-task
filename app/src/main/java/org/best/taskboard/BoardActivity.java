@@ -3,6 +3,7 @@ package org.best.taskboard;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import butterknife.BindView;
@@ -142,14 +144,16 @@ public class BoardActivity extends AppCompatActivity {
                 int idx = mViewPager.getCurrentItem();
                 final CardsFragment cards = mPagerAdapter.getItem(idx);
                 final String message = mMessageEdit.getText().toString();
-                if (idx == 0) {
-                    synchronized (endpoint.usedIds) {
-                        endpoint.usedIds.add(client.send(message));
+                if (!message.trim().isEmpty()) {
+                    if (idx == 0) {
+                        synchronized (endpoint.usedIds) {
+                            endpoint.usedIds.add(client.send(message));
+                        }
+                        cards.getCards().add(new Card(message));
+                        cards.notifyDataSetChanged();
+                    } else {
+                        cards.send(message);
                     }
-                    cards.getCards().add(new Card(message));
-                    cards.notifyDataSetChanged();
-                } else {
-                    cards.send(message);
                 }
                 mMessageEdit.setText("");
             }
@@ -382,6 +386,7 @@ public class BoardActivity extends AppCompatActivity {
 //        if (!mPagerAdapter.removeFragment(name)) {
         CardsFragment fragment = (CardsFragment) Cache.getInstance().getOrPut(name, new CardsFragment());
         if (fragment.connect(address)) {
+            fragment.setColor(randomColor());
             mPagerAdapter.addFragment(name, fragment);
 //        }
             mPagerAdapter.notifyDataSetChanged();
@@ -389,6 +394,21 @@ public class BoardActivity extends AppCompatActivity {
         }
         mDrawerLayout.closeDrawer(GravityCompat.START);
         return fragment;
+    }
+
+    public int randomColor() {
+        final Random random = new Random(System.currentTimeMillis());
+        final int baseColor = Color.WHITE;
+
+        final int baseRed = Color.red(baseColor);
+        final int baseGreen = Color.green(baseColor);
+        final int baseBlue = Color.blue(baseColor);
+
+        final int red = (baseRed + random.nextInt(256)) / 2;
+        final int green = (baseGreen + random.nextInt(256)) / 2;
+        final int blue = (baseBlue + random.nextInt(256)) / 2;
+
+        return Color.rgb(red, green, blue);
     }
 
     static class PagerAdapter extends FragmentPagerAdapter {

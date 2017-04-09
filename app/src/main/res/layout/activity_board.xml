@@ -78,7 +78,7 @@
                     android:layout_alignBottom="@+id/message_text"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="15dp"
-                    android:src="@drawable/ic_send_24dp" />
+                    android:src="@drawable/ic_send" />
             </RelativeLayout>
 
         <com.github.clans.fab.FloatingActionMenu
@@ -195,7 +195,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:text="@string/boards"
+                        android:text="@string/clients"
                         android:textAppearance="@style/TextAppearance.AppCompat.Button"
                         android:textStyle="bold" />
 
