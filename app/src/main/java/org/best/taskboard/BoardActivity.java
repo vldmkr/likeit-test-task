@@ -30,8 +30,10 @@ import org.best.taskboard.models.Board;
 import org.best.taskboard.models.Cache;
 import org.best.taskboard.models.Card;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,6 +74,8 @@ public class BoardActivity extends AppCompatActivity {
     CoapClient client;
     CoapEndpoint endpoint = null;
 
+    final List<Board> mBoards = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,10 +113,8 @@ public class BoardActivity extends AppCompatActivity {
         mBoardsRecycler.setItemAnimator(new SlideInLeftAnimator());
         mBoardsRecycler.addItemDecoration(new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL_LIST));
-        BoardsAdapter boardsAdapter = new BoardsAdapter(new ArrayList<Board>() {{
-            add(new Board("1223", "asdasd"));
-            add(new Board("6567", "asdasdgsewd"));
-        }});
+        final BoardsAdapter boardsAdapter = new BoardsAdapter(mBoards);
+
         mBoardsRecycler.setAdapter(boardsAdapter);
         mBoardsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
@@ -130,7 +132,21 @@ public class BoardActivity extends AppCompatActivity {
             }
         });
         if (client == null) {
-            client = new CoapClient();
+            client = new CoapClient(new CoapClient.Listener() {
+                @Override
+                public void onResponse(final Map<InetAddress, String> clients) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mBoards.clear();
+                            for (Map.Entry<InetAddress, String> val : clients.entrySet()) {
+                                mBoards.add(new Board(val.getValue(), val.getKey().toString()));
+                            }
+                            boardsAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            });
         }
         if (endpoint == null) {
             endpoint = new CoapEndpoint(new CoapEndpoint.Listener() {
